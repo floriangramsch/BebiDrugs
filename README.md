@@ -10,3 +10,5 @@ Linux -> `/dev/ttyUSB0`
 `uvicorn main:app --reload`
 
 `mpremote connect /dev/ttyUSB0 repl fs cp script.py :main.py`
+
+`mpy-cross` ???
