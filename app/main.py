@@ -4,12 +4,12 @@ import machine
 
 from lib.lcd.lcd import LCD
 from lib.box.box import Box
-from misc import wifi, button_a_pressed, DrugState, switch_state
+from misc import wifi, button_a_pressed, button_b_pressed, switch_selection, switch_state
 
 def main():
     print("Initializing everything...")
     
-    drug_state: DrugState = "medikinet"
+    selected_drug = "medikinet"
     
     lcd = LCD(rs_pin=Pin(15),
               enable_pin=Pin(2),
@@ -25,8 +25,7 @@ def main():
 
     wifi(lcd) # clears screen afterwards
     
-    lcd.writeFirstLine(drug_state)
-    lcd.writeSecondLine(drug_state, "", "")
+    lcd.writeFirstLine(selected_drug)
 
     # mqtt = Mqtt(led, lcd)
     # mqtt.init()
@@ -34,10 +33,12 @@ def main():
     box = Box(lcd, led)
     box.init()
     
-    med = "not_taken"
-    vd = "not_taken"
-    fe = "not_taken"
-    
+    drugs = {
+        "medikinet": "not_taken",
+        "vitamin_d": "not_taken",
+        "eisen": "not_taken"
+    }
+    lcd.writeSecondLine(drugs["medikinet"], drugs["vitamin_d"], drugs["eisen"])
 
     last_state_button_a = box.get_button_a_value()
     last_state_button_b = box.get_button_b_value()
@@ -49,10 +50,14 @@ def main():
         current_state_button_b = box.get_button_b_value()
 
         if button_a_pressed(last_state_button_a, current_state_button_a):
-            drug_state = switch_state(drug_state)
-            lcd.writeFirstLine(drug_state)
-        if button_a_pressed(last_state_button_a, current_state_button_a):
-            pass
+            selected_drug = switch_selection(selected_drug)
+            lcd.writeFirstLine(selected_drug)
+        if button_b_pressed(last_state_button_b, current_state_button_b):
+            drugs = switch_state(drugs, selected_drug)
+            lcd.writeSecondLine(
+                    drugs["medikinet"], drugs["vitamin_d"], drugs["eisen"]
+                )
+            
 
         # alle 5 Minuten aktualisieren
         # if ticks_ms() - last_refresh >= 300_000:  # 300000 ms = 5 Minuten

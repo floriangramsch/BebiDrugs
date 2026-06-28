@@ -19,7 +19,6 @@ def get_local_time(offset_hours=2):  # Sommerzeit = 2, Winterzeit = 1
     # return (hour, t[4])  # (Stunde, Minute)
     return hour  # (Stunde, Minute)
 
-
 def wifi(lcd):
     lcd.putstr("Connecting wifi...")
     connect_wifi()
@@ -31,31 +30,38 @@ def wifi(lcd):
     
 def button_a_pressed(last_state: int | None, new_state: int | None):
     if last_state == 1 and new_state == 0:
-        print("State switch")
         sleep_ms(50)  # Debounce delay
         return True
     else: 
         return False
-        
-# def button_pressed(mqtt: Mqtt, last_state: int | None, new_state: int | None, callback):
-#     if last_state == 1 and new_state == 0:
-#         callback()
-#         print("Fed")
-#         mqtt.pub(b"kodzenbox/button/01/state", b"Button pressed")
-#         sleep_ms(50)  # Debounce delay
-#     elif last_state == 0 and new_state == 1:
-#         mqtt.pub(b"kodzenbox/button/01/state", b"Button released")
-        
-# def publish_all(mqtt: Mqtt, lcd: LCD, led: machine.Pin):
-#     mqtt.pub(b'kodzenbox/led/state', b"ON" if led.value() else b"OFF")
-#     mqtt.pub(b'kodzenbox/lcd/state', b"ON" if lcd.backlight else b"OFF")
     
-def switch_state(state):
-    print(state)
-    if state == "medikinet":
+def button_b_pressed(last_state: int | None, new_state: int | None):
+    if last_state == 1 and new_state == 0:
+        sleep_ms(50)  # Debounce delay
+        return True
+    else: 
+        return False
+            
+def switch_selection(selection):
+    if selection == "medikinet":
         return "vitamin_d"
-    elif state == "vitamin_d":
+    elif selection == "vitamin_d":
         return "eisen"
-    elif state == "eisen":
+    elif selection == "eisen":
         return "medikinet"
     return "medikinet"
+
+def switch_drug_state(drug):
+    if drug == "not_taken":
+        return "taken"
+    elif drug == "taken":
+        return "skipped"
+    elif drug == "skipped":
+        return "not_taken"
+    return "not_taken"
+
+
+def switch_state(drugs, selected_drug):
+    if selected_drug in drugs:
+        drugs[selected_drug] = switch_drug_state(drugs[selected_drug])
+    return drugs
