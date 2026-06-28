@@ -27,17 +27,10 @@ def main():
     
     lcd.writeFirstLine(selected_drug)
 
-    # mqtt = Mqtt(led, lcd)
-    # mqtt.init()
-
     box = Box(lcd, led)
-    box.init()
     
-    drugs = {
-        "medikinet": "not_taken",
-        "vitamin_d": "not_taken",
-        "eisen": "not_taken"
-    }
+    drugs = box.fetch_taken_drugs()
+
     lcd.writeSecondLine(drugs["medikinet"], drugs["vitamin_d"], drugs["eisen"])
 
     last_state_button_a = box.get_button_a_value()
@@ -45,7 +38,6 @@ def main():
     last_refresh = ticks_ms()
     print("Starting loop..")
     while True:
-        # mqtt.check_msg()
         current_state_button_a = box.get_button_a_value()
         current_state_button_b = box.get_button_b_value()
 
@@ -57,14 +49,13 @@ def main():
             lcd.writeSecondLine(
                     drugs["medikinet"], drugs["vitamin_d"], drugs["eisen"]
                 )
+            box.change_drug_state(selected_drug, drugs[selected_drug])
             
 
         # alle 5 Minuten aktualisieren
-        # if ticks_ms() - last_refresh >= 300_000:  # 300000 ms = 5 Minuten
-        #     box.fetch_time()
-
-        #     last_refresh = ticks_ms()
-        #     box.checkIfFed()
+        if ticks_ms() - last_refresh >= 300_000:  # 300000 ms = 5 Minuten
+            drugs = box.fetch_taken_drugs()
+            last_refresh = ticks_ms()
 
         last_state_button_a = current_state_button_a
         last_state_button_b = current_state_button_b

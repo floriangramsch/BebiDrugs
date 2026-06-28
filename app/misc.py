@@ -5,7 +5,6 @@ import machine
 
 from lib.wifi.wifi import connect_wifi
 from lib.lcd.lcd import LCD
-from lib.mqtt.mqtt import Mqtt
 
 try:
     from typing import Literal
